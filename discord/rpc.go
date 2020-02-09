@@ -41,7 +41,7 @@ type modState struct {
 func (mod *modState) updateActivity() {
 	err := discord.SetActivity(*mod.activity)
 	if err != nil {
-		mod.Warn(err)
+		mod.Warnln(err)
 	}
 }
 
@@ -106,7 +106,7 @@ func (mod *modState) syncDataHandler(op string, data []byte, ctx *goproxy.ProxyC
 func initFunc(d *proxy.Dispatch) ([]*proxy.PacketHook, proxy.ShutdownCb) {
 	gd, err := gamedata.New(d.Region, d.Logger)
 	if err != nil {
-		d.Warn(err)
+		d.Warnln(err)
 	}
 	mod := modState{
 		activity: &discord.Activity{
@@ -124,7 +124,7 @@ func initFunc(d *proxy.Dispatch) ([]*proxy.PacketHook, proxy.ShutdownCb) {
 		defer mod.mutex.Unlock()
 		err = discord.Login(appID)
 		if err != nil {
-			d.Warn(err)
+			d.Warnln(err)
 		}
 		mod.updateActivity()
 	}()
