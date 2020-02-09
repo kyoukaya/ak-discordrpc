@@ -11,6 +11,8 @@ github.com/kyoukaya/rhine v0.0.0-20200208161208-2fbef4afbbb6 h1:YYbYWkbVM2ruNNH6
 github.com/kyoukaya/rhine v0.0.0-20200208161208-2fbef4afbbb6/go.mod h1:PqZeQby5eJ4WNvXghw+WRbMd2MQqGlwhA+hma6yvlmk=
 github.com/kyoukaya/rhine v0.0.0-20200208161531-e561d5ea335b h1:igNi9bh15XxLQ7haWKHLB5s/7uitXy9W9FP760sIfVs=
 github.com/kyoukaya/rhine v0.0.0-20200208161531-e561d5ea335b/go.mod h1:PqZeQby5eJ4WNvXghw+WRbMd2MQqGlwhA+hma6yvlmk=
+github.com/kyoukaya/rhine v0.0.0-20200209073918-2cedf48cd343 h1:WsrBghlXAU37wuCyERBiU4/KholMwY00Z6beBbSp3Io=
+github.com/kyoukaya/rhine v0.0.0-20200209073918-2cedf48cd343/go.mod h1:PqZeQby5eJ4WNvXghw+WRbMd2MQqGlwhA+hma6yvlmk=
 github.com/kyoukaya/rich-go v0.0.0-20200206150355-f0defd62a597 h1:CQNL6yQqXztjdkmELkyLlXB+EI7XTveAjLAtwGZ+pOg=
 github.com/kyoukaya/rich-go v0.0.0-20200206150355-f0defd62a597/go.mod h1:RiBSH3DcTtJ5cbE0i/TPtPjdYu+aKrydh2UP9qPWeow=
 github.com/logrusorgru/aurora v0.0.0-20190803045625-94edacc10f9b h1:PMbSa9CgaiQR9NLlUTwKi+7aeLl3GG5JX5ERJxfQ3IE=
