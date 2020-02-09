@@ -4,3 +4,10 @@
 
 A [rhine](https://github.com/kyoukaya/rhine) module to update a user's Discord rich presence when logging into the game.
 The status text is limited to combat (practice, auto, fighting) and non-combat (idling only).
+
+## Usage
+
+```
+go run cmd/main.go
+```
+Or download the latest release and run the executable.
