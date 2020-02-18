@@ -31,11 +31,11 @@ const (
 )
 
 type modState struct {
-	activity *discord.Activity
-	*proxy.Dispatch
-	stageTable *stagetable.StageTable
-	gd         *gamedata.GameData
 	mutex      sync.Mutex
+	activity   *discord.Activity
+	stageTable *stagetable.StageTable
+	*gamedata.GameData
+	*proxy.RhineModule
 }
 
 func (mod *modState) updateActivity() {
@@ -89,8 +89,8 @@ func (mod *modState) battleStartHandler(op string, data []byte, ctx *goproxy.Pro
 func (mod *modState) syncData() {
 	mod.mutex.Lock()
 	defer mod.mutex.Unlock()
-	mod.stageTable = mod.gd.GetStageInfo()
-	s := mod.State.GetStateRef().Status
+	mod.stageTable = mod.GetStageInfo()
+	s := mod.GetGameState().Status
 	mod.activity.Details = fmt.Sprintf("[%s] %s#%s", mod.Region, s.NickName, s.NickNumber)
 	if mod.Region == "JP" {
 		mod.activity.LargeText = largeImageTextJP
@@ -103,40 +103,38 @@ func (mod *modState) syncDataHandler(op string, data []byte, ctx *goproxy.ProxyC
 	return data
 }
 
-func initFunc(d *proxy.Dispatch) ([]*proxy.PacketHook, proxy.ShutdownCb) {
-	gd, err := gamedata.New(d.Region, d.Logger)
+func initFunc(mod *proxy.RhineModule) {
+	gd, err := gamedata.New(mod.Region, mod.Logger)
 	if err != nil {
-		d.Warnln(err)
+		mod.Warnln(err)
 	}
-	mod := modState{
+	state := modState{
 		activity: &discord.Activity{
 			State:      idleText,
 			Details:    loggingInText,
 			LargeImage: largeImageID,
 			LargeText:  largeImageText,
 		},
-		Dispatch: d,
-		gd:       gd,
+		RhineModule: mod,
+		GameData:    gd,
 	}
 	// Handshake may take awhile, so we'll do that in a goroutine
 	go func() {
-		mod.mutex.Lock()
-		defer mod.mutex.Unlock()
-		err = discord.Login(appID)
+		state.mutex.Lock()
+		defer state.mutex.Unlock()
+		err := discord.Login(appID)
 		if err != nil {
-			d.Warnln(err)
+			mod.Warnln(err)
 		}
-		mod.updateActivity()
+		state.updateActivity()
 	}()
-	return []*proxy.PacketHook{
-		proxy.NewPacketHook(modName, "S/account/syncData", 0, mod.syncDataHandler),
-		proxy.NewPacketHook(modName, "S/quest/battleFinish", 0, mod.battleFinishHandler),
-		proxy.NewPacketHook(modName, "S/campaign/battleFinish", 0, mod.battleFinishHandler),
-		proxy.NewPacketHook(modName, "S/quest/battleStart", 0, mod.battleStartHandler),
-		proxy.NewPacketHook(modName, "S/campaign/battleStart", 0, mod.battleStartHandler),
-	}, func(bool) {}
+	mod.Hook("S/account/syncData", 0, state.syncDataHandler)
+	mod.Hook("S/quest/battleFinish", 0, state.battleFinishHandler)
+	mod.Hook("S/campaign/battleFinish", 0, state.battleFinishHandler)
+	mod.Hook("S/quest/battleStart", 0, state.battleStartHandler)
+	mod.Hook("S/campaign/battleStart", 0, state.battleStartHandler)
 }
 
 func init() {
-	proxy.RegisterMod(modName, initFunc)
+	proxy.RegisterInitFunc(modName, initFunc)
 }
