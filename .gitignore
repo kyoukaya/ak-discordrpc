@@ -4,7 +4,6 @@
 # Project specific files
 *.log
 *.pem
-data/
 .version
 
 # Binaries for programs and plugins

@@ -24,6 +24,7 @@ const (
 	largeImageID     = "arknights"
 	largeImageText   = "Arknights"
 	largeImageTextJP = "アークナイツ"
+	largeImageTextKR = "명일방주"
 	idleText         = "Idling"
 	practiceText     = "Practicing "
 	autoplayText     = "Autoing "
@@ -94,6 +95,8 @@ func (mod *modState) syncData() {
 	mod.activity.Details = fmt.Sprintf("[%s] %s#%s", mod.Region, s.NickName, s.NickNumber)
 	if mod.Region == "JP" {
 		mod.activity.LargeText = largeImageTextJP
+	} else if mod.Region == "KR" {
+		mod.activity.LargeText = largeImageTextKR
 	}
 	mod.updateActivity()
 }
