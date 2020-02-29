@@ -1,5 +1,5 @@
 PKGNAME := ak-discordrpc
-VERSION := 0.3-alpha
+VERSION := 0.35-alpha
 TARGET := cmd/main.go
 TARGETOS := windows
 TARGETARCH := amd64
