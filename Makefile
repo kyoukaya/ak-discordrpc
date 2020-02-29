@@ -1,5 +1,5 @@
 PKGNAME := ak-discordrpc
-VERSION := 0.2-alpha
+VERSION := 0.3-alpha
 TARGET := cmd/main.go
 TARGETOS := windows
 TARGETARCH := amd64
@@ -7,7 +7,7 @@ GOFLAGS := -v
 LDFLAGS := -s -w
 BIN := main.exe
 TEMP_DIR := ${PKGNAME}
-ADDITIONAL_RELEASE_FILES := data readme.md
+ADDITIONAL_RELEASE_FILES := data readme.md strings.json
 # Creates the archive with zip
 ARCHIVE_NAME := ${PKGNAME}-${VERSION}-${TARGETOS}-${TARGETARCH}.zip
 
