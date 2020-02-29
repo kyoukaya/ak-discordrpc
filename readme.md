@@ -9,11 +9,15 @@ The status text is limited to combat (practice, auto, fighting) and non-combat (
 
 Download the latest release from the [releases page](https://github.com/kyoukaya/ak-discordrpc/releases) or run from source with `go build cmd/main.go && ./main.exe`.
 
+Edit the strings.json file to change the discord app ID and other text/images shown with Discord RPC.
+
 If you're using the program for the first time, you'll need to setup the certificate and change the proxy settings in your Android emulator/phone. [See here](https://github.com/kyoukaya/rhine/wiki/First-Time-Setup) for more information.
 
 ```
 $ ./main.exe -help
 Usage of C:\Users\kaya\Desktop\discordrpc\main.exe:
+  -disable-cert-store
+        disables the built in certstore, reduces memory usage but increases HTTP latency and CPU usage
   -filter
         enable the host filter
   -host string
