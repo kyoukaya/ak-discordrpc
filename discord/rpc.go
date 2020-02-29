@@ -11,29 +11,20 @@ import (
 
 	"github.com/elazarl/goproxy"
 	"github.com/kyoukaya/rhine/proxy"
+	"github.com/kyoukaya/rhine/utils"
 	"github.com/kyoukaya/rhine/utils/gamedata"
 	"github.com/kyoukaya/rhine/utils/gamedata/stagetable"
 	discord "github.com/kyoukaya/rich-go/client"
 	"github.com/tidwall/gjson"
 )
 
-const (
-	modName          = "Discord RPC"
-	appID            = "674504097076084747"
-	loggingInText    = "Logging in"
-	largeImageID     = "arknights"
-	largeImageText   = "Arknights"
-	largeImageTextJP = "アークナイツ"
-	idleText         = "Idling"
-	practiceText     = "Practicing "
-	autoplayText     = "Autoing "
-	battleText       = "Fighting "
-)
+const modName = "Discord RPC"
 
 type modState struct {
 	mutex      sync.Mutex
 	activity   *discord.Activity
 	stageTable *stagetable.StageTable
+	config     *config
 	*gamedata.GameData
 	*proxy.RhineModule
 }
@@ -48,7 +39,7 @@ func (mod *modState) updateActivity() {
 func (mod *modState) battleFinishHandler(_ string, data []byte, _ *goproxy.ProxyCtx) []byte {
 	mod.mutex.Lock()
 	defer mod.mutex.Unlock()
-	mod.activity.State = idleText
+	mod.activity.State = *mod.config.IdleText
 	mod.activity.Timestamps = nil
 	go mod.updateActivity()
 	return data
@@ -59,12 +50,12 @@ func (mod *modState) battleStart(data []byte) {
 	defer mod.mutex.Unlock()
 	isPractice := gjson.GetBytes(data, "usePracticeTicket").Bool()
 	if isPractice {
-		mod.activity.State = practiceText
+		mod.activity.State = *mod.config.PracticeText
 	} else {
 		if gjson.GetBytes(data, "isReplay").Bool() {
-			mod.activity.State = autoplayText
+			mod.activity.State = *mod.config.AutoplayText
 		} else {
-			mod.activity.State = battleText
+			mod.activity.State = *mod.config.BattleText
 		}
 	}
 	stageID := gjson.GetBytes(data, "stageId").String()
@@ -89,12 +80,13 @@ func (mod *modState) battleStartHandler(op string, data []byte, ctx *goproxy.Pro
 func (mod *modState) syncData() {
 	mod.mutex.Lock()
 	defer mod.mutex.Unlock()
-	mod.stageTable = mod.GetStageInfo()
+	var err error
+	mod.stageTable, err = mod.GetStageInfo()
+	if err != nil {
+		mod.Warnln(err)
+	}
 	s := mod.GetGameState().Status
 	mod.activity.Details = fmt.Sprintf("[%s] %s#%s", mod.Region, s.NickName, s.NickNumber)
-	if mod.Region == "JP" {
-		mod.activity.LargeText = largeImageTextJP
-	}
 	mod.updateActivity()
 }
 
@@ -108,21 +100,25 @@ func initFunc(mod *proxy.RhineModule) {
 	if err != nil {
 		mod.Warnln(err)
 	}
+	c := getConfig(utils.BinDir + "strings.json")
 	state := modState{
 		activity: &discord.Activity{
-			State:      idleText,
-			Details:    loggingInText,
-			LargeImage: largeImageID,
-			LargeText:  largeImageText,
+			State:      *c.IdleText,
+			Details:    *c.LoggingInText,
+			LargeImage: *c.LargeImageID,
+			LargeText:  *c.LargeImageText,
+			SmallImage: *c.SmallImageID,
+			SmallText:  *c.SmallImageText,
 		},
 		RhineModule: mod,
 		GameData:    gd,
+		config:      c,
 	}
 	// Handshake may take awhile, so we'll do that in a goroutine
 	go func() {
 		state.mutex.Lock()
 		defer state.mutex.Unlock()
-		err := discord.Login(appID)
+		err := discord.Login(*c.AppID)
 		if err != nil {
 			mod.Warnln(err)
 		}
